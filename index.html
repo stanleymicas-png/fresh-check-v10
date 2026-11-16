@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fresh Check V10</title>
+<style>
+body{font-family:system-ui,sans-serif;background:#fdf2f8;margin:0;padding:20px;text-align:center}
+.card{background:white;max-width:480px;margin:0 auto;padding:24px;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.1)}
+h1{font-size:32px;margin:0}
+input,button,select{width:100%;padding:14px;margin:8px 0;border-radius:12px;font-size:16px;border:1px solid #ddd;box-sizing:border-box}
+button{background:#d63384;color:white;border:none;font-weight:700;cursor:pointer}
+button.warn{background:#dc2626}
+button.secondary{background:#6b21a8}
+#video{width:100%;border-radius:12px;display:none;background:black}
+#result{padding:16px;border-radius:12px;margin-top:12px;font-weight:700;display:none}
+.fresh{background:#dcfce7;color:#166534}
+.notfresh{background:#fee2e2;color:#991b1b}
+#popup{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:20px;z-index:99}
+.popup-box{background:white;padding:24px;border-radius:20px;max-width:420px;text-align:left}
+.small{font-size:13px;color:#666}
+label{text-align:left;display:block;font-weight:700;margin-top:6px}
+</style>
+</head>
+<body>
+<div id="popup"><div class="popup-box">
+<h2>⚠️ Take Photo of PRODUCT ONLY</h2>
+<p>Please only scan your <b>FOOD / PRODUCT</b>. Do NOT take photos of people, faces, children, or IDs.</p>
+<p>Your photo stays on YOUR phone only.</p>
+<p>Product check is saved to help keep shops safe.</p>
+<button onclick="closePopup()">✅ I Understand</button>
+</div></div>
+<div class="card">
+<h1>🥦 Fresh Check</h1>
+<p>Check if your food is still fresh!</p>
+<label>Product Name</label>
+<input id="food" placeholder="e.g. Milk, Bread, Chicken">
+<p id="lookupStatus" class="small"></p>
+<button onclick="startScan()">Scan Barcode</button>
+<video id="video" playsinline></video>
+<p id="scanStatus" class="small"></p>
+<label>Barcode Number</label>
+<input id="barcode" placeholder="e.g. 6001234567890" inputmode="numeric" onblur="lookupProduct()">
+<button class="secondary" onclick="lookupProduct()">🔍 Look Up Product Name</button>
+<label>Which Tuckshop are you in?</label>
+<select id="shop">
+<option>Archie's Tuckshop</option>
+<option>Alex's Tuckshop</option>
+<option>Masaisai Tuckshop</option>
+<option value="OTHER">➕ Shop Not Listed? Add New Shop</option>
+</select>
+<input id="newShopName" placeholder="Type new shop name if not listed" style="display:none">
+<label>Expiry Date on Packet</label>
+<input id="expiry" type="date">
+<button onclick="checkFreshness()">Check Freshness ✅</button>
+<button class="warn" onclick="blurryDate()">😶‍🌫️ Date is Blurry / Can't See It</button>
+<div id="result"></div>
+<p class="small">Made for Archie ❤️<br>If you are not sure - DON'T BUY IT.<br><b>V10</b></p>
+</div>
+<script>
+const SHEET_URL = "PASTE_YOUR_WEB_APP_URL_HERE";
+function closePopup(){document.getElementById('popup').style.display='none';}
+let stream=null;
+async function startScan(){
+const video=document.getElementById('video');
+try{
+stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+video.srcObject=stream; video.style.display='block'; await video.play();
+document.getElementById('scanStatus').innerText='Point camera at barcode...';
+if('BarcodeDetector' in window){
+const detector=new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e','code_128']});
+const loop=async()=>{
+try{const codes=await detector.detect(video);
+if(codes.length>0){document.getElementById('barcode').value=codes[0].rawValue; lookupProduct();document.getElementById('scanStatus').innerText='✅ Barcode found: '+codes[0].rawValue;stopScan();return;}}catch(e){}
+if(stream) requestAnimationFrame(loop);}; loop();
+}else{document.getElementById('scanStatus').innerText='Please type barcode manually.';}
+}catch(e){alert('Camera permission needed. Type barcode manually.');}
+}
+function stopScan(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}document.getElementById('video').style.display='none';}
+async function lookupProduct(){
+  const code=document.getElementById('barcode').value.trim();
+  if(!code) return;
+  document.getElementById('lookupStatus').innerText='Looking up...';
+  try{
+    const res=await fetch('https://world.openfoodfacts.org/api/v0/product/'+code+'.json');
+    const data=await res.json();
+    if(data.status===1 && data.product){
+      const name=data.product.product_name || data.product.product_name_en || '';
+      const brand=data.product.brands || '';
+      if(name){ document.getElementById('food').value=(brand?brand+' - ':'')+name; document.getElementById('lookupStatus').innerText='Found: '+name; }
+    }
+  }catch(e){}
+}
+function getShop(){
+  let s=document.getElementById('shop').value;
+  if(s==='OTHER'){
+    let t=document.getElementById('newShopName').value.trim();
+    if(!t){alert('Type new shop name');return null;}
+    return t;
+  }
+  return s;
+}
+document.getElementById('shop').addEventListener('change',function(){
+  document.getElementById('newShopName').style.display=this.value==='OTHER'?'block':'none';
+});
+function sendToSheet(shop,product,barcode,expiry,status){
+  if(SHEET_URL.includes("PASTE_")) return;
+  fetch(SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({shop,product,barcode,expiry,status,gps:"Pampierstad"})});
+}
+function checkFreshness(){
+const food=document.getElementById('food').value.trim()||'This product';
+const barcode=document.getElementById('barcode').value.trim();
+const shop=getShop(); if(!shop) return;
+const expiry=document.getElementById('expiry').value;
+const result=document.getElementById('result');
+result.style.display='block';
+if(!barcode){result.innerText='Please scan or type barcode first.';return;}
+if(!expiry){result.innerText='Please type expiry date.';return;}
+const today=new Date();today.setHours(0,0,0,0);
+const exp=new Date(expiry);exp.setHours(0,0,0,0);
+const diff=Math.ceil((exp-today)/(1000*60*60*24));
+let status,html,cls;
+if(diff<0){status='EXPIRED';cls='notfresh';html='⛔ NOT FRESH - DON\'T BUY IT<br>'+food+' expired '+Math.abs(diff)+' days ago.';}
+else if(diff===0){status='EXPIRED';cls='notfresh';html='⛔ EXPIRES TODAY - DON\'T BUY IT<br>'+food;}
+else if(diff<=3){status='EXPIRING SOON';cls='notfresh';html='⚠️ EXPIRES IN '+diff+' DAYS - DON\'T BUY IT<br>'+food;}
+else{status='FRESH';cls='fresh';html='✅ FRESH - Safe to Buy<br>'+food+' expires in '+diff+' days.';}
+result.className=cls; result.innerHTML=html;
+sendToSheet(shop,food,barcode,expiry,status);
+}
+function blurryDate(){
+const food=document.getElementById('food').value.trim()||'This product';
+const barcode=document.getElementById('barcode').value.trim()||'No barcode';
+const shop=getShop(); if(!shop) return;
+const result=document.getElementById('result');
+result.style.display='block';result.className='notfresh';result.innerHTML='⛔ DATE BLURRY / CAN\'T SEE IT - DON\'T BUY IT<br>Better safe.';
+sendToSheet(shop,food,barcode,'Blurry','EXPIRED');
+}
+</script>
+</body>
+</html>

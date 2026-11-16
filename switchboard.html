@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fresh Check V10 - Switchboard</title>
+<style>
+body{font-family:Arial,sans-serif;background:#0f172a;color:#fff;margin:0;padding:16px}
+h1{font-size:22px;margin:0} p{color:#94a3b8;font-size:13px}
+.card{background:#1e293b;border-radius:12px;padding:14px;margin-top:14px}
+input,select{width:100%;padding:12px;margin:6px 0;border-radius:8px;border:none;font-size:15px;box-sizing:border-box}
+button{width:100%;padding:13px;background:#22c55e;color:#000;font-weight:bold;border:none;border-radius:8px;font-size:16px;cursor:pointer}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+th,td{padding:8px;border-bottom:1px solid #334155;text-align:left}
+.badge{padding:4px 8px;border-radius:20px;font-weight:bold;font-size:11px}
+.green{background:#22c55e;color:#000} .amber{background:#facc15;color:#000} .red{background:#ef4444;color:#fff} .grey{background:#64748b;color:#fff}
+</style>
+</head>
+<body>
+<h1>🛡️ Fresh Check V10 - Switchboard</h1>
+<p>Private - Only for you. Live from Google Sheet.</p>
+
+<div class="card">
+<input id="search" placeholder="Search shop, product, barcode..." oninput="render()">
+<select id="filter" onchange="render()">
+<option value="ALL">Show: ALL</option>
+<option value="FRESH">Show: FRESH Only</option>
+<option value="EXPIRING SOON">Show: EXPIRING SOON Only</option>
+<option value="EXPIRED">Show: EXPIRED Only</option>
+</select>
+<button onclick="loadData()">🔄 Refresh from Sheet</button>
+<p id="status">Click Refresh to load.</p>
+</div>
+
+<div class="card">
+<table>
+<thead><tr><th>Date</th><th>Shop</th><th>Product</th><th>Expiry</th><th>Status</th><th>GPS</th></tr></thead>
+<tbody id="rows"><tr><td colspan="6">No data yet.</td></tr></tbody>
+</table>
+</div>
+
+<script>
+const SHEET_URL = "PASTE_YOUR_WEB_APP_URL_HERE";
+let allData = [];
+async function loadData(){
+  document.getElementById('status').innerText = "Loading...";
+  try{
+    const res = await fetch(SHEET_URL);
+    const data = await res.json();
+    allData = data.slice(1); // skip header row
+    document.getElementById('status').innerText = "Loaded " + allData.length + " rows from Sheet ✅";
+    render();
+  }catch(e){
+    document.getElementById('status').innerText = "Error: Check your SHEET_URL. Did you paste Web App URL?";
+  }
+}
+function badge(s){
+  s = (s||"").toUpperCase();
+  if(s.includes("FRESH")) return '<span class="badge green">FRESH</span>';
+  if(s.includes("EXPIRING")) return '<span class="badge amber">EXPIRING SOON</span>';
+  if(s.includes("EXPIRED")) return '<span class="badge red">EXPIRED</span>';
+  return '<span class="badge grey">'+s+'</span>';
+}
+function render(){
+  const q = document.getElementById('search').value.toLowerCase();
+  const f = document.getElementById('filter').value;
+  let html = "";
+  allData.forEach(r=>{
+    // r = [Timestamp, Shop, Product, Barcode, Expiry, Status, GPS]
+    const txt = r.join(" ").toLowerCase();
+    if(q && !txt.includes(q)) return;
+    if(f!=="ALL" && (r[5]||"").toUpperCase()!==f) return;
+    html += `<tr><td>${r[0]||""}</td><td>${r[1]||""}</td><td>${r[2]||""}<br><small>${r[3]||""}</small></td><td>${r[4]||""}</td><td>${badge(r[5])}</td><td><a style="color:#60a5fa" href="https://maps.google.com/?q=${r[6]||""}" target="_blank">${r[6]?"📍 View":"-"}</a></td></tr>`;
+  });
+  document.getElementById('rows').innerHTML = html || '<tr><td colspan="6">No matching rows.</td></tr>';
+}
+</script>
+</body>
+</html>
