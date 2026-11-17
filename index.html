@@ -3,152 +3,233 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fresh Check - v11</title>
+<title>Fresh Check v11.1</title>
 <style>
-body{font-family:Arial,sans-serif;margin:0;background:#fde7f0;color:#222}
-.tabs{display:flex;background:#fff2f6;padding:10px;gap:8px;position:sticky;top:0;z-index:10}
-.tabs button{flex:1;padding:12px;border:none;border-radius:20px;font-size:16px;font-weight:bold;cursor:pointer;background:#eee}
-.tabs button.active{background:#ec407a;color:white}
-.container{padding:14px;max-width:520px;margin:auto}
-.card{background:white;border-radius:18px;padding:18px;box-shadow:0 4px 14px rgba(0,0,0,0.08)}
-h1{text-align:center;font-size:32px;margin:6px 0}
-.sub{text-align:center;color:#666;margin:0 0 16px}
-label{font-weight:bold;display:block;margin:14px 0 6px}
-input{width:100%;padding:13px;border:1px solid #ccc;border-radius:10px;font-size:16px;box-sizing:border-box}
-.btn{width:100%;border:none;padding:14px;border-radius:12px;font-size:18px;font-weight:bold;margin-top:12px;cursor:pointer;color:white}
-.btn-pink{background:#ec407a}
-.btn-purple{background:#5e35b1}
-.btn-green{background:#81c784;color:#1b5e20}
-.locBox{background:#dcf2d9;border:1px solid #a5d6a7;padding:12px;border-radius:12px;margin-top:14px}
-.locTitle{font-weight:bold;color:#1b5e20}
-.locLine{font-size:17px;margin-top:4px;color:#1b5e20}
-.locSmall{font-size:12px;color:#555;margin-top:4px}
-.switch-item{border-bottom:1px solid #eee;padding:10px 0}
-.fresh{color:#2e7d32;font-weight:bold}
-.expired{color:#c62828;font-weight:bold}
-.warn{color:#ef6c00;font-weight:bold}
-.small{font-size:13px;color:#666}
+*{box-sizing:border-box;font-family:Arial,sans-serif}
+body{margin:0;background:#f4f6f8;padding:16px}
+.card{background:#fff;border-radius:14px;padding:16px;max-width:520px;margin:0 auto;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+h1{margin:0 0 4px;font-size:24px;color:#0a7a42}
+.sub{color:#666;font-size:13px;margin-bottom:16px}
+label{display:block;font-weight:700;margin:14px 0 6px;font-size:14px}
+input,select{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;font-size:16px;background:#fff}
+button{width:100%;padding:13px;border:0;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer}
+.btn-green{background:#0a7a42;color:#fff}
+.btn-dark{background:#111;color:#fff;margin-top:8px}
+.btn-light{background:#eef2f0;color:#111;margin-top:8px}
+.row{display:flex;gap:8px}.row button{flex:1}
+.note{font-size:12px;color:#666;margin-top:5px}
+.warn{background:#fff3cd;border:1px solid #ffe08a;padding:10px;border-radius:10px;font-size:13px;margin-top:10px;display:none}
+.danger{background:#fde8e8;border:1px solid #f5b0b0;padding:10px;border-radius:10px;font-size:13px;margin-top:10px;display:none}
+.ok{background:#e6f7ee;border:1px solid #a8e0c0;padding:10px;border-radius:10px;font-size:13px;margin-top:10px;display:none}
+.info{background:#eef5ff;border:1px solid #c2d8ff;padding:10px;border-radius:10px;font-size:13px;margin-top:10px;display:none}
+#cameraBox{display:none;position:fixed;inset:0;background:#000;z-index:99;padding:16px;color:#fff}
+#cameraBox video{width:100%;border-radius:12px;background:#222}
+.scan-frame{border:3px solid #00e676;border-radius:12px;height:120px;margin:-140px 16px 0;position:relative;z-index:2}
+#msgBox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center;padding:20px}
+#msgBox .inner{background:#fff;color:#111;border-radius:14px;padding:20px;max-width:380px;width:100%;text-align:center}
 </style>
 </head>
 <body>
-
-<div class="tabs">
-  <button id="tabCheck" class="active" onclick="showTab('check')">Fresh Check</button>
-  <button id="tabSwitch" onclick="showTab('switch')">My Switchboard</button>
-</div>
-
-<div class="container">
-<div id="pageCheck">
 <div class="card">
 <h1>🥦 Fresh Check</h1>
-<p class="sub">Check if your food is still fresh!</p>
+<div class="sub">Check if product is fresh • v11.1 • Fast • No pop-ups</div>
 
-<label>Product Name</label>
-<input id="productName" placeholder="e.g. Milk, Bread, Chicken">
+<label>1. Barcode</label>
+<div class="row">
+<input id="barcode" placeholder="e.g. 6006823005998" inputmode="numeric">
+<button class="btn-green" style="width:130px" onclick="startScan('barcode')">📷 Scan</button>
+</div>
+<div id="lookupNote" class="note">Scan barcode to auto-fill product name & company.</div>
 
-<button class="btn btn-pink" onclick="scanBarcode()">Scan Barcode</button>
+<label>2. Product Name</label>
+<input id="productName" placeholder="Product name will fill here automatically">
+<div id="productInfo" class="info"></div>
 
-<label>Barcode Number</label>
-<input id="barcode" placeholder="e.g. 6001234567890" inputmode="numeric">
+<label>3. QR Code <span style="font-weight:400;color:#666">(if packet has square code)</span></label>
+<div class="row">
+<input id="qrCode" placeholder="QR Code - optional">
+<button class="btn-dark" style="width:130px" onclick="startScan('qr')">📷 Scan QR</button>
+</div>
+<div class="note">We use the word QR Code because everyone understands it. If no QR Code, leave it blank.</div>
 
-<button class="btn btn-purple" onclick="lookupProduct()">🔍 Look Up Product Name</button>
-
-<label>Expiry Date on Packet</label>
+<label>4. Expiry Date — Where did you see it?</label>
 <input type="date" id="expiry">
+<select id="dateSource" style="margin-top:8px">
+<option value="">-- Where is the date printed? --</option>
+<option value="factory">Printed by factory on original sealed packet</option>
+<option value="sticker">Sticker stuck on top / Re-printed</option>
+<option value="container">On plastic container / Loose sweets / No original packet</option>
+</select>
 
-<div class="locBox">
-<div class="locTitle">📍 Location (GPS Auto-Detect)</div>
-<div class="locLine" id="gpsText">Detecting automatically...</div>
-<div class="locSmall">Detecting automatically in background - township language.</div>
-</div>
+<div id="trustWarn" class="warn"></div>
+<div id="riskDanger" class="danger"></div>
+<div id="freshResult" class="ok"></div>
 
-<button class="btn btn-pink" onclick="checkFreshness()">Check Freshness ✅</button>
-<div id="result" style="margin-top:14px;font-size:18px"></div>
-</div>
-</div>
-
-<div id="pageSwitch" style="display:none">
-<div class="card">
-<h3>Live Switchboard</h3>
-<p class="small">All checks from this device.</p>
-<div id="switchList">No checks yet.</div>
-<button class="btn btn-pink" onclick="clearSwitch()">Clear Switchboard</button>
-</div>
+<button class="btn-green" style="margin-top:16px" onclick="checkFreshness()">✅ Check Freshness</button>
+<button class="btn-light" onclick="resetAll()">Clear</button>
+<p class="note" style="text-align:center;margin-top:12px">Barcode confirms WHAT the product is. It does NOT contain expiry or QR batch info. Expiry must be checked separately.</p>
 </div>
 
-<p class="small" style="text-align:center">Fresh Check v11 - GPS Only - Township Language</p>
+<!-- STEP 1: MESSAGE BEFORE CAMERA -->
+<div id="msgBox"><div class="inner">
+<h3 style="margin:0">📷 Ready to Scan?</h3>
+<p style="font-size:16px;line-height:1.5">Point at the barcode and hold the phone to capture the barcode.</p>
+<p style="font-size:13px;color:#666">Hold still for 1-2 seconds. It will capture automatically.</p>
+<button class="btn-green" onclick="openCamera()">OK — Open Camera</button>
+<button class="btn-light" onclick="closeMsg()">Cancel</button>
+</div></div>
+
+<!-- STEP 2: CAMERA -->
+<div id="cameraBox">
+<h3 id="camTitle" style="margin:0 0 8px">Point at barcode...</h3>
+<video id="video" playsinline muted autoplay></video>
+<div class="scan-frame"></div>
+<p style="text-align:center;font-size:14px">Hold still... capturing automatically</p>
+<p id="camStatus" style="text-align:center;font-size:13px;color:#ccc">Starting camera...</p>
+<button class="btn-light" onclick="closeCamera()">Close Camera / Type Manually</button>
 </div>
 
 <script>
-let currentLocation = "Detecting automatically...";
-function showTab(which){
-  document.getElementById('pageCheck').style.display = which==='check'?'block':'none';
-  document.getElementById('pageSwitch').style.display = which==='switch'?'block':'none';
-  document.getElementById('tabCheck').className = which==='check'?'active':'';
-  document.getElementById('tabSwitch').className = which==='switch'?'active':'';
-  if(which==='switch') renderSwitch();
+let stream=null, scanMode='barcode', rafId=null, detector=null;
+let lastLookup='';
+
+function showMsg(mode){
+  scanMode=mode;
+  document.getElementById('msgBox').style.display='flex';
 }
-function cleanTownshipName(text){
-  if(!text) return text;
-  // Remove municipality language - keep only township language
-  let banned = ["municipality","Municipality","eThekwini","City of","Metropolitan","District","Local Municipality"];
-  let cleaned = text;
-  banned.forEach(b=>{ cleaned = cleaned.split(b).join(""); });
-  cleaned = cleaned.replace(/, ,/g,", ").replace(/\s+/g," ").trim().replace(/^,|,$/g,"");
-  return cleaned || text;
-}
-function getGPS(){
-  if(!navigator.geolocation){ document.getElementById('gpsText').innerText="GPS not supported"; return; }
-  navigator.geolocation.getCurrentPosition(async function(pos){
-    let lat = pos.coords.latitude, lng = pos.coords.longitude;
-    // Try to get township name in background, single line only
-    try{
-      let res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=14&addressdetails=1`);
-      let data = await res.json();
-      let a = data.address || {};
-      let place = a.suburb || a.neighbourhood || a.township || a.village || a.town || a.city_district || "";
-      let area = a.suburb && a.neighbourhood && a.neighbourhood!==a.suburb ? a.neighbourhood : "";
-      let single = place ? (area ? place + ", " + area : place) : "Current Location";
-      single = cleanTownshipName(single);
-      currentLocation = single;
-      document.getElementById('gpsText').innerText = single;
-    }catch(e){
-      currentLocation = "Lat: " + lat.toFixed(4) + ", Lng: " + lng.toFixed(4);
-      document.getElementById('gpsText').innerText = currentLocation;
+function closeMsg(){ document.getElementById('msgBox').style.display='none'; }
+function startScan(mode){ showMsg(mode); }
+
+async function openCamera(){
+  closeMsg();
+  document.getElementById('cameraBox').style.display='block';
+  document.getElementById('camTitle').textContent = scanMode==='qr' ? 'Point at QR Code...' : 'Point at the barcode and hold the phone...';
+  document.getElementById('camStatus').textContent='Starting camera...';
+  try{
+    if(!('BarcodeDetector' in window)){
+      document.getElementById('camStatus').textContent='Your phone does not support auto-scan. Please close and type number manually.';
+      return;
     }
-  }, function(){ document.getElementById('gpsText').innerText="Please allow location permission"; });
+    const formats = scanMode==='qr' ? ['qr_code'] : ['ean_13','ean_8','upc_a','upc_e','code_128'];
+    detector = new BarcodeDetector({formats});
+    stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    const video=document.getElementById('video');
+    video.srcObject=stream;
+    await video.play();
+    document.getElementById('camStatus').textContent='Camera ready — hold still...';
+    scanLoop();
+  }catch(e){
+    document.getElementById('camStatus').textContent='Camera blocked. Please allow camera in Chrome, or close and type manually.';
+  }
 }
-getGPS();
-function scanBarcode(){ alert("Point camera at barcode, then type the number you see."); document.getElementById('barcode').focus(); }
-function lookupProduct(){
-  let code = document.getElementById('barcode').value.trim();
-  if(!code){ alert("Please enter barcode number first"); return; }
-  alert("Looking up product for barcode: " + code + ". If not found, please type product name.");
+async function scanLoop(){
+  const video=document.getElementById('video');
+  try{
+    const codes = await detector.detect(video);
+    if(codes && codes.length>0){
+      const val=codes[0].rawValue;
+      if(scanMode==='qr'){
+        document.getElementById('qrCode').value=val;
+        document.getElementById('lookupNote').textContent='QR Code captured: '+val;
+      } else {
+        document.getElementById('barcode').value=val;
+        document.getElementById('lookupNote').textContent='Barcode captured: '+val+' — looking up product...';
+        lookupProduct(val);
+      }
+      closeCamera();
+      return;
+    }
+  }catch(e){}
+  rafId=requestAnimationFrame(scanLoop);
 }
+function closeCamera(){
+  if(rafId) cancelAnimationFrame(rafId);
+  if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; }
+  document.getElementById('cameraBox').style.display='none';
+}
+
+// NO POP-UPS - quiet lookup
+async function lookupProduct(code){
+  if(!code || code===lastLookup) return;
+  lastLookup=code;
+  const note=document.getElementById('lookupNote');
+  const info=document.getElementById('productInfo');
+  info.style.display='none';
+  try{
+    const res=await fetch('https://world.openfoodfacts.org/api/v0/product/'+code+'.json');
+    const data=await res.json();
+    if(data && data.status===1 && data.product){
+      const p=data.product;
+      const name = p.product_name || p.product_name_en || '';
+      const brand = p.brands || '';
+      const company = p.manufacturing_places || p.brands || '';
+      const country = p.countries || '';
+      if(name) document.getElementById('productName').value=name;
+      info.style.display='block';
+      info.innerHTML='<b>✅ Product found</b><br>Product: '+(name||'—')+'<br>Company / Brand: '+(brand||company||'Not listed')+'<br>Country: '+(country||'Not listed');
+      note.textContent='Product auto-filled from barcode.';
+      if(!name) note.textContent='Product found, but name not listed. Please type product name.';
+    } else {
+      note.textContent='Not found. Please type product name.';
+      info.style.display='none';
+    }
+  }catch(e){
+    note.textContent='Could not look up — please type product name.';
+  }
+}
+document.getElementById('barcode').addEventListener('change', e=>lookupProduct(e.target.value.trim()));
+
 function checkFreshness(){
-  let name = document.getElementById('productName').value.trim() || "Unknown Product";
-  let barcode = document.getElementById('barcode').value.trim() || "No barcode";
-  let expiryVal = document.getElementById('expiry').value;
-  if(!expiryVal){ alert("Please pick expiry date"); return; }
-  let today = new Date(); today.setHours(0,0,0,0);
-  let exp = new Date(expiryVal);
-  let diff = Math.round((exp - today)/(1000*60*60*24));
-  let status="", cls="";
-  if(diff<0){ status="EXPIRED - Do not sell / Do not eat"; cls="expired"; }
-  else if(diff===0){ status="EXPIRES TODAY - Use with caution"; cls="warn"; }
-  else if(diff<=3){ status="EXPIRING SOON - " + diff + " days left"; cls="warn"; }
-  else{ status="FRESH - " + diff + " days left"; cls="fresh"; }
-  document.getElementById('result').innerHTML = "<div class='"+cls+"'>"+status+"</div><div class='small'>"+name+" | "+currentLocation+"</div>";
-  let checks = JSON.parse(localStorage.getItem('fresh_checks')||"[]");
-  checks.unshift({name:name,barcode:barcode,expiry:expiryVal,status:status,location:currentLocation,time:new Date().toLocaleString()});
-  localStorage.setItem('fresh_checks', JSON.stringify(checks));
+  const barcode=document.getElementById('barcode').value.trim();
+  const expiry=document.getElementById('expiry').value;
+  const src=document.getElementById('dateSource').value;
+  const warn=document.getElementById('trustWarn');
+  const danger=document.getElementById('riskDanger');
+  const result=document.getElementById('freshResult');
+  warn.style.display='none'; danger.style.display='none'; result.style.display='none';
+
+  if(!expiry){ danger.style.display='block'; danger.innerHTML='<b>Please pick expiry date.</b>'; return; }
+  if(!src){ danger.style.display='block'; danger.innerHTML='<b>Please tell us where the date was printed.</b>'; return; }
+
+  const today=new Date(); today.setHours(0,0,0,0);
+  const exp=new Date(expiry); exp.setHours(0,0,0,0);
+  const diff=Math.ceil((exp-today)/86400000);
+
+  // TRUST CHECK - no blind Fresh
+  if(!barcode){
+    danger.style.display='block';
+    danger.innerHTML='<b>⚠️ CANNOT VERIFY — HIGH RISK</b><br>No barcode. No company info. Cannot confirm who made this product. Check smell, colour, and if container was sealed. Do not trust date alone.';
+  }
+  if(src==='container'){
+    warn.style.display='block';
+    warn.innerHTML='<b>⚠️ WARNING: Date on loose container / plastic tub</b><br>This date may not be the factory date. The sweets inside may be older than the date on the container. Check carefully.';
+  } else if(src==='sticker'){
+    warn.style.display='block';
+    warn.innerHTML='<b>⚠️ WARNING: Date on sticker / re-printed</b><br>Sticker dates can be changed. Compare with factory print if possible. If sticker covers original date, treat as suspicious.';
+  }
+
+  if(diff<0){
+    result.style.display='block'; result.style.background='#fde8e8'; result.style.borderColor='#f5b0b0';
+    result.innerHTML='<b>❌ NOT FRESH — EXPIRED</b><br>Expired '+Math.abs(diff)+' day(s) ago.';
+  } else if(diff<=3){
+    result.style.display='block'; result.style.background='#fff3cd'; result.style.borderColor='#ffe08a';
+    result.innerHTML='<b>⚠️ NEAR EXPIRY — Use Today</b><br>Expires in '+diff+' day(s).';
+  } else {
+    result.style.display='block'; result.style.background='#e6f7ee'; result.style.borderColor='#a8e0c0';
+    if(src!=='factory'){
+      result.innerHTML='<b>✅ DATE SAYS FRESH — BUT CHECK WARNING ABOVE</b><br>Expires in '+diff+' days. Date is from '+src+', so trust is lower. Do not rely on date alone.';
+    } else {
+      result.innerHTML='<b>✅ FRESH</b><br>Expires in '+diff+' days. Date from original factory sealed packet.';
+    }
+  }
 }
-function renderSwitch(){
-  let checks = JSON.parse(localStorage.getItem('fresh_checks')||"[]");
-  if(checks.length===0){ document.getElementById('switchList').innerHTML="No checks yet."; return; }
-  document.getElementById('switchList').innerHTML = checks.map(c=>"<div class='switch-item'><b>"+c.name+"</b><br>"+c.status+"<br><span class='small'>"+c.time+" | "+c.location+" | Barcode: "+c.barcode+"</span></div>").join("");
+function resetAll(){
+  ['barcode','productName','qrCode','expiry','dateSource'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('lookupNote').textContent='Scan barcode to auto-fill product name & company.';
+  document.getElementById('productInfo').style.display='none';
+  ['trustWarn','riskDanger','freshResult'].forEach(id=>document.getElementById(id).style.display='none');
+  lastLookup='';
 }
-function clearSwitch(){ localStorage.removeItem('fresh_checks'); renderSwitch(); }
 </script>
 </body>
 </html>
