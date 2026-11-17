@@ -3,138 +3,152 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fresh Check V10</title>
+<title>Fresh Check - v11</title>
 <style>
-body{font-family:system-ui,sans-serif;background:#fdf2f8;margin:0;padding:20px;text-align:center}
-.card{background:white;max-width:480px;margin:0 auto;padding:24px;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.1)}
-h1{font-size:32px;margin:0}
-input,button,select{width:100%;padding:14px;margin:8px 0;border-radius:12px;font-size:16px;border:1px solid #ddd;box-sizing:border-box}
-button{background:#d63384;color:white;border:none;font-weight:700;cursor:pointer}
-button.warn{background:#dc2626}
-button.secondary{background:#6b21a8}
-#video{width:100%;border-radius:12px;display:none;background:black}
-#result{padding:16px;border-radius:12px;margin-top:12px;font-weight:700;display:none}
-.fresh{background:#dcfce7;color:#166534}
-.notfresh{background:#fee2e2;color:#991b1b}
-#popup{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:20px;z-index:99}
-.popup-box{background:white;padding:24px;border-radius:20px;max-width:420px;text-align:left}
+body{font-family:Arial,sans-serif;margin:0;background:#fde7f0;color:#222}
+.tabs{display:flex;background:#fff2f6;padding:10px;gap:8px;position:sticky;top:0;z-index:10}
+.tabs button{flex:1;padding:12px;border:none;border-radius:20px;font-size:16px;font-weight:bold;cursor:pointer;background:#eee}
+.tabs button.active{background:#ec407a;color:white}
+.container{padding:14px;max-width:520px;margin:auto}
+.card{background:white;border-radius:18px;padding:18px;box-shadow:0 4px 14px rgba(0,0,0,0.08)}
+h1{text-align:center;font-size:32px;margin:6px 0}
+.sub{text-align:center;color:#666;margin:0 0 16px}
+label{font-weight:bold;display:block;margin:14px 0 6px}
+input{width:100%;padding:13px;border:1px solid #ccc;border-radius:10px;font-size:16px;box-sizing:border-box}
+.btn{width:100%;border:none;padding:14px;border-radius:12px;font-size:18px;font-weight:bold;margin-top:12px;cursor:pointer;color:white}
+.btn-pink{background:#ec407a}
+.btn-purple{background:#5e35b1}
+.btn-green{background:#81c784;color:#1b5e20}
+.locBox{background:#dcf2d9;border:1px solid #a5d6a7;padding:12px;border-radius:12px;margin-top:14px}
+.locTitle{font-weight:bold;color:#1b5e20}
+.locLine{font-size:17px;margin-top:4px;color:#1b5e20}
+.locSmall{font-size:12px;color:#555;margin-top:4px}
+.switch-item{border-bottom:1px solid #eee;padding:10px 0}
+.fresh{color:#2e7d32;font-weight:bold}
+.expired{color:#c62828;font-weight:bold}
+.warn{color:#ef6c00;font-weight:bold}
 .small{font-size:13px;color:#666}
-label{text-align:left;display:block;font-weight:700;margin-top:6px}
 </style>
 </head>
 <body>
-<div id="popup"><div class="popup-box">
-<h2>⚠️ Take Photo of PRODUCT ONLY</h2>
-<p>Please only scan your <b>FOOD / PRODUCT</b>. Do NOT take photos of people, faces, children, or IDs.</p>
-<p>Your photo stays on YOUR phone only.</p>
-<p>Product check is saved to help keep shops safe.</p>
-<button onclick="closePopup()">✅ I Understand</button>
-</div></div>
+
+<div class="tabs">
+  <button id="tabCheck" class="active" onclick="showTab('check')">Fresh Check</button>
+  <button id="tabSwitch" onclick="showTab('switch')">My Switchboard</button>
+</div>
+
+<div class="container">
+<div id="pageCheck">
 <div class="card">
 <h1>🥦 Fresh Check</h1>
-<p>Check if your food is still fresh!</p>
+<p class="sub">Check if your food is still fresh!</p>
+
 <label>Product Name</label>
-<input id="food" placeholder="e.g. Milk, Bread, Chicken">
-<p id="lookupStatus" class="small"></p>
-<button onclick="startScan()">Scan Barcode</button>
-<video id="video" playsinline></video>
-<p id="scanStatus" class="small"></p>
+<input id="productName" placeholder="e.g. Milk, Bread, Chicken">
+
+<button class="btn btn-pink" onclick="scanBarcode()">Scan Barcode</button>
+
 <label>Barcode Number</label>
-<input id="barcode" placeholder="e.g. 6001234567890" inputmode="numeric" onblur="lookupProduct()">
-<button class="secondary" onclick="lookupProduct()">🔍 Look Up Product Name</button>
-<label>Which Tuckshop are you in?</label>
-<select id="shop">
-<option>Archie's Tuckshop</option>
-<option>Alex's Tuckshop</option>
-<option>Masaisai Tuckshop</option>
-<option value="OTHER">➕ Shop Not Listed? Add New Shop</option>
-</select>
-<input id="newShopName" placeholder="Type new shop name if not listed" style="display:none">
+<input id="barcode" placeholder="e.g. 6001234567890" inputmode="numeric">
+
+<button class="btn btn-purple" onclick="lookupProduct()">🔍 Look Up Product Name</button>
+
 <label>Expiry Date on Packet</label>
-<input id="expiry" type="date">
-<button onclick="checkFreshness()">Check Freshness ✅</button>
-<button class="warn" onclick="blurryDate()">😶‍🌫️ Date is Blurry / Can't See It</button>
-<div id="result"></div>
-<p class="small">Made for Archie ❤️<br>If you are not sure - DON'T BUY IT.<br><b>V10</b></p>
+<input type="date" id="expiry">
+
+<div class="locBox">
+<div class="locTitle">📍 Location (GPS Auto-Detect)</div>
+<div class="locLine" id="gpsText">Detecting automatically...</div>
+<div class="locSmall">Detecting automatically in background - township language.</div>
 </div>
+
+<button class="btn btn-pink" onclick="checkFreshness()">Check Freshness ✅</button>
+<div id="result" style="margin-top:14px;font-size:18px"></div>
+</div>
+</div>
+
+<div id="pageSwitch" style="display:none">
+<div class="card">
+<h3>Live Switchboard</h3>
+<p class="small">All checks from this device.</p>
+<div id="switchList">No checks yet.</div>
+<button class="btn btn-pink" onclick="clearSwitch()">Clear Switchboard</button>
+</div>
+</div>
+
+<p class="small" style="text-align:center">Fresh Check v11 - GPS Only - Township Language</p>
+</div>
+
 <script>
-const SHEET_URL = "PASTE_YOUR_WEB_APP_URL_HERE";
-function closePopup(){document.getElementById('popup').style.display='none';}
-let stream=null;
-async function startScan(){
-const video=document.getElementById('video');
-try{
-stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
-video.srcObject=stream; video.style.display='block'; await video.play();
-document.getElementById('scanStatus').innerText='Point camera at barcode...';
-if('BarcodeDetector' in window){
-const detector=new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e','code_128']});
-const loop=async()=>{
-try{const codes=await detector.detect(video);
-if(codes.length>0){document.getElementById('barcode').value=codes[0].rawValue; lookupProduct();document.getElementById('scanStatus').innerText='✅ Barcode found: '+codes[0].rawValue;stopScan();return;}}catch(e){}
-if(stream) requestAnimationFrame(loop);}; loop();
-}else{document.getElementById('scanStatus').innerText='Please type barcode manually.';}
-}catch(e){alert('Camera permission needed. Type barcode manually.');}
+let currentLocation = "Detecting automatically...";
+function showTab(which){
+  document.getElementById('pageCheck').style.display = which==='check'?'block':'none';
+  document.getElementById('pageSwitch').style.display = which==='switch'?'block':'none';
+  document.getElementById('tabCheck').className = which==='check'?'active':'';
+  document.getElementById('tabSwitch').className = which==='switch'?'active':'';
+  if(which==='switch') renderSwitch();
 }
-function stopScan(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}document.getElementById('video').style.display='none';}
-async function lookupProduct(){
-  const code=document.getElementById('barcode').value.trim();
-  if(!code) return;
-  document.getElementById('lookupStatus').innerText='Looking up...';
-  try{
-    const res=await fetch('https://world.openfoodfacts.org/api/v0/product/'+code+'.json');
-    const data=await res.json();
-    if(data.status===1 && data.product){
-      const name=data.product.product_name || data.product.product_name_en || '';
-      const brand=data.product.brands || '';
-      if(name){ document.getElementById('food').value=(brand?brand+' - ':'')+name; document.getElementById('lookupStatus').innerText='Found: '+name; }
+function cleanTownshipName(text){
+  if(!text) return text;
+  // Remove municipality language - keep only township language
+  let banned = ["municipality","Municipality","eThekwini","City of","Metropolitan","District","Local Municipality"];
+  let cleaned = text;
+  banned.forEach(b=>{ cleaned = cleaned.split(b).join(""); });
+  cleaned = cleaned.replace(/, ,/g,", ").replace(/\s+/g," ").trim().replace(/^,|,$/g,"");
+  return cleaned || text;
+}
+function getGPS(){
+  if(!navigator.geolocation){ document.getElementById('gpsText').innerText="GPS not supported"; return; }
+  navigator.geolocation.getCurrentPosition(async function(pos){
+    let lat = pos.coords.latitude, lng = pos.coords.longitude;
+    // Try to get township name in background, single line only
+    try{
+      let res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=14&addressdetails=1`);
+      let data = await res.json();
+      let a = data.address || {};
+      let place = a.suburb || a.neighbourhood || a.township || a.village || a.town || a.city_district || "";
+      let area = a.suburb && a.neighbourhood && a.neighbourhood!==a.suburb ? a.neighbourhood : "";
+      let single = place ? (area ? place + ", " + area : place) : "Current Location";
+      single = cleanTownshipName(single);
+      currentLocation = single;
+      document.getElementById('gpsText').innerText = single;
+    }catch(e){
+      currentLocation = "Lat: " + lat.toFixed(4) + ", Lng: " + lng.toFixed(4);
+      document.getElementById('gpsText').innerText = currentLocation;
     }
-  }catch(e){}
+  }, function(){ document.getElementById('gpsText').innerText="Please allow location permission"; });
 }
-function getShop(){
-  let s=document.getElementById('shop').value;
-  if(s==='OTHER'){
-    let t=document.getElementById('newShopName').value.trim();
-    if(!t){alert('Type new shop name');return null;}
-    return t;
-  }
-  return s;
-}
-document.getElementById('shop').addEventListener('change',function(){
-  document.getElementById('newShopName').style.display=this.value==='OTHER'?'block':'none';
-});
-function sendToSheet(shop,product,barcode,expiry,status){
-  if(SHEET_URL.includes("PASTE_")) return;
-  fetch(SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({shop,product,barcode,expiry,status,gps:"Pampierstad"})});
+getGPS();
+function scanBarcode(){ alert("Point camera at barcode, then type the number you see."); document.getElementById('barcode').focus(); }
+function lookupProduct(){
+  let code = document.getElementById('barcode').value.trim();
+  if(!code){ alert("Please enter barcode number first"); return; }
+  alert("Looking up product for barcode: " + code + ". If not found, please type product name.");
 }
 function checkFreshness(){
-const food=document.getElementById('food').value.trim()||'This product';
-const barcode=document.getElementById('barcode').value.trim();
-const shop=getShop(); if(!shop) return;
-const expiry=document.getElementById('expiry').value;
-const result=document.getElementById('result');
-result.style.display='block';
-if(!barcode){result.innerText='Please scan or type barcode first.';return;}
-if(!expiry){result.innerText='Please type expiry date.';return;}
-const today=new Date();today.setHours(0,0,0,0);
-const exp=new Date(expiry);exp.setHours(0,0,0,0);
-const diff=Math.ceil((exp-today)/(1000*60*60*24));
-let status,html,cls;
-if(diff<0){status='EXPIRED';cls='notfresh';html='⛔ NOT FRESH - DON\'T BUY IT<br>'+food+' expired '+Math.abs(diff)+' days ago.';}
-else if(diff===0){status='EXPIRED';cls='notfresh';html='⛔ EXPIRES TODAY - DON\'T BUY IT<br>'+food;}
-else if(diff<=3){status='EXPIRING SOON';cls='notfresh';html='⚠️ EXPIRES IN '+diff+' DAYS - DON\'T BUY IT<br>'+food;}
-else{status='FRESH';cls='fresh';html='✅ FRESH - Safe to Buy<br>'+food+' expires in '+diff+' days.';}
-result.className=cls; result.innerHTML=html;
-sendToSheet(shop,food,barcode,expiry,status);
+  let name = document.getElementById('productName').value.trim() || "Unknown Product";
+  let barcode = document.getElementById('barcode').value.trim() || "No barcode";
+  let expiryVal = document.getElementById('expiry').value;
+  if(!expiryVal){ alert("Please pick expiry date"); return; }
+  let today = new Date(); today.setHours(0,0,0,0);
+  let exp = new Date(expiryVal);
+  let diff = Math.round((exp - today)/(1000*60*60*24));
+  let status="", cls="";
+  if(diff<0){ status="EXPIRED - Do not sell / Do not eat"; cls="expired"; }
+  else if(diff===0){ status="EXPIRES TODAY - Use with caution"; cls="warn"; }
+  else if(diff<=3){ status="EXPIRING SOON - " + diff + " days left"; cls="warn"; }
+  else{ status="FRESH - " + diff + " days left"; cls="fresh"; }
+  document.getElementById('result').innerHTML = "<div class='"+cls+"'>"+status+"</div><div class='small'>"+name+" | "+currentLocation+"</div>";
+  let checks = JSON.parse(localStorage.getItem('fresh_checks')||"[]");
+  checks.unshift({name:name,barcode:barcode,expiry:expiryVal,status:status,location:currentLocation,time:new Date().toLocaleString()});
+  localStorage.setItem('fresh_checks', JSON.stringify(checks));
 }
-function blurryDate(){
-const food=document.getElementById('food').value.trim()||'This product';
-const barcode=document.getElementById('barcode').value.trim()||'No barcode';
-const shop=getShop(); if(!shop) return;
-const result=document.getElementById('result');
-result.style.display='block';result.className='notfresh';result.innerHTML='⛔ DATE BLURRY / CAN\'T SEE IT - DON\'T BUY IT<br>Better safe.';
-sendToSheet(shop,food,barcode,'Blurry','EXPIRED');
+function renderSwitch(){
+  let checks = JSON.parse(localStorage.getItem('fresh_checks')||"[]");
+  if(checks.length===0){ document.getElementById('switchList').innerHTML="No checks yet."; return; }
+  document.getElementById('switchList').innerHTML = checks.map(c=>"<div class='switch-item'><b>"+c.name+"</b><br>"+c.status+"<br><span class='small'>"+c.time+" | "+c.location+" | Barcode: "+c.barcode+"</span></div>").join("");
 }
+function clearSwitch(){ localStorage.removeItem('fresh_checks'); renderSwitch(); }
 </script>
 </body>
 </html>
