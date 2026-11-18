@@ -3,177 +3,150 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FRESH CHECK V11 Simple</title>
+<title>FRESH CHECK V12 PRIVATE - 15 PER DAY</title>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
-*{box-sizing:border-box} body{font-family:system-ui,Arial,sans-serif;margin:0;background:#f6f7f9;color:#111}
-.header{background:#0f7a3d;color:#fff;padding:18px 16px;text-align:center}
-.header h1{margin:0;font-size:26px;letter-spacing:1px}
-.header p{margin:6px 0 0;opacity:.9;font-size:13px}
+*{box-sizing:border-box}body{font-family:system-ui,Arial,sans-serif;margin:0;background:#f6f7f9;color:#111}
+.header{background:#111;color:#fff;padding:18px 16px;text-align:center}
+.header h1{margin:0;font-size:22px}.header p{margin:6px 0 0;font-size:12px;opacity:.85}
+.lock{background:#fff3cd;color:#7a5b00;display:inline-block;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:800;margin-top:8px}
 .card{background:#fff;margin:12px;border-radius:14px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
 label{font-weight:700;font-size:13px;display:block;margin:12px 0 6px}
 input,select{width:100%;padding:13px;border:1px solid #ddd;border-radius:10px;font-size:16px}
 .btn{width:100%;padding:15px;border:0;border-radius:12px;font-size:17px;font-weight:800;cursor:pointer}
-.btn-green{background:#0f7a3d;color:#fff}
-.btn-dark{background:#111;color:#fff}
-.btn-grey{background:#eef0f2;color:#111}
+.btn-green{background:#0f7a3d;color:#fff}.btn-dark{background:#111;color:#fff}.btn-grey{background:#eef0f2;color:#111}.btn-blue{background:#0b5ed7;color:#fff}
 .small{font-size:12px;color:#666;margin-top:6px}
-.badge{display:inline-block;background:#e6f4ec;color:#0f7a3d;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:700}
 #reader{width:100%;border-radius:12px;overflow:hidden;margin-top:10px}
-.result{border:2px solid #0f7a3d}
-.hidden{display:none}
-.row{display:flex;gap:10px}.row>*{flex:1}
+.hidden{display:none}.row{display:flex;gap:10px}.row>*{flex:1}
+.prod-img{width:100%;height:180px;object-fit:cover;border-radius:12px;border:1px solid #eee}
+.thumb{width:68px;height:68px;object-fit:cover;border-radius:10px;border:1px solid #ddd;background:#eee}
+.item{display:flex;gap:10px;padding:10px;border:1px solid #eee;border-radius:12px;margin:8px 0;background:#fff}
+.badge{display:inline-block;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:800}
+.badge-gold{background:#fff3cd;color:#7a5b00}.badge-green{background:#e6f4ec;color:#0f7a3d}.badge-red{background:#fde8e8;color:#a00}.badge-orange{background:#fff0e0;color:#8a4b00}
+.stat{background:#111;color:#fff;border-radius:12px;padding:12px;text-align:center}.stat b{font-size:22px}
+.tabBtn{padding:10px;border-radius:999px;border:1px solid #ddd;background:#fff;font-weight:700;cursor:pointer}
+.tabBtn.active{background:#111;color:#fff}
+.bar{height:14px;background:#eee;border-radius:999px;overflow:hidden;margin:8px 0}.bar>div{height:100%;background:#0f7a3d;transition:width .3s}
+.barTotal>div{background:#d4a017}
+.goalBox{background:#111;color:#fff;border-radius:14px;padding:14px;text-align:center}
+.goalBox b{font-size:26px}
 </style>
 </head>
 <body>
-<div class="header"><h1>✅ FRESH CHECK</h1><p>V11 Simple • One Scan for Everyone • Hartswater</p></div>
+<div class="header"><h1>✅ FRESH CHECK V12</h1><p>PRIVATE COLLECTOR • Hartswater • 15 PER DAY</p><div class="lock">🔒 PRIVATE — Only on MY phone • NOT shared • Until December</div></div>
 
 <div class="card">
-  <span class="badge" id="locBadge">📍 Location: Hartswater, Northern Cape</span>
-  <label>Your Location</label>
-  <div class="row"><input id="locationInput" value="Hartswater, Northern Cape" placeholder="Type your town, e.g. Hartswater"><button class="btn btn-dark" style="width:auto;padding:13px 16px" onclick="getLocation()">Use My Location</button></div>
-  <p class="small" id="locMsg">You can type your town if automatic location fails. App will still work.</p>
+  <div class="goalBox">
+    <div style="font-size:12px;letter-spacing:1px;opacity:.8">TODAY'S MISSION — 15 GOLD PER DAY</div>
+    <b id="todayText">0 / 15</b>
+    <div class="bar"><div id="todayBar" style="width:0%"></div></div>
+    <p id="todayMsg" style="margin:0;font-size:13px;font-weight:700">Start Day 1 tomorrow — Scan your first GOLD!</p>
+  </div>
+  <div class="row" style="margin-top:12px">
+    <div class="stat"><b id="countGold">0</b><br><span style="font-size:11px">GOLD Total</span></div>
+    <div class="stat" style="background:#0f7a3d"><b id="countSkipped">0</b><br><span style="font-size:11px">Skipped</span></div>
+    <div class="stat" style="background:#eef0f2;color:#111"><b id="countTotalScan">0</b><br><span style="font-size:11px">Scanned</span></div>
+  </div>
+  <div style="margin-top:12px">
+    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700"><span>ROAD TO UNSTOPPABLE</span><span id="totalText">0 / 600</span></div>
+    <div class="bar barTotal"><div id="totalBar" style="width:0%"></div></div>
+    <p class="small" style="text-align:center;margin:0" id="totalMsg">600 = Unstoppable 👑 • 400 = Star ⭐ • 150 = Launch ✅</p>
+  </div>
 </div>
 
 <div class="card">
-  <h2 style="margin:0">1. Scan Product</h2>
-  <p class="small">One button scans Packet AND Bottle. No confusion.</p>
-  <button class="btn btn-green" id="scanBtn" onclick="startScan()">📷 SCAN BARCODE</button>
+  <h2 style="margin:0">1. Scan Barcode + Expiry</h2>
+  <button class="btn btn-green" onclick="startScan()">📷 SCAN BARCODE</button>
   <div id="reader" class="hidden"></div>
   <button class="btn btn-grey hidden" id="stopBtn" onclick="stopScan()">Stop Camera</button>
-  <label>Barcode (or type it manually)</label>
-  <input id="barcode" placeholder="e.g. 6001234567890" oninput="onBarcodeChange()">
-  <p class="small" id="scanMsg">Tap SCAN, point at barcode, hold still 2 seconds.</p>
+  <label>Barcode</label>
+  <input id="barcode" placeholder="e.g. 6001008859335" oninput="checkWorld()">
+  <button class="btn btn-dark" style="margin-top:10px" onclick="checkWorld()">🔍 CHECK WORLD DATABASE</button>
+  <p class="small" id="scanMsg">Scan barcode, then we check world database automatically.</p>
+  <div id="worldKnown" class="hidden" style="margin-top:12px;border:2px solid #0f7a3d;border-radius:12px;padding:12px;background:#e6f4ec">
+    <b>✅ WORLD KNOWS THIS — SKIP IT</b><p id="worldName" style="font-weight:800;margin:8px 0 0"></p><p class="small" id="worldMeta"></p><p class="small"><b>Don't waste time.</b> Go scan next product.</p>
+    <button class="btn btn-grey" onclick="markSkipped()">⏭️ SKIP — RECORD AS SKIPPED</button>
+  </div>
+  <div id="worldUnknown" class="hidden" style="margin-top:12px;border:2px solid #d4a017;border-radius:12px;padding:12px;background:#fff8e1">
+    <b>🔴 NOT IN WORLD DATABASE — GOLD! COLLECT THIS!</b><p class="small" style="margin:6px 0 0">World has NO name for this. This is valuable. Take photo + name + size + expiry below.</p>
+  </div>
+  <div id="alreadyCollected" class="hidden" style="margin-top:12px;border:2px solid #0b5ed7;border-radius:12px;padding:12px;background:#eaf2ff">
+    <b style="color:#0b5ed7">💙 YOU ALREADY COLLECTED THIS</b><img id="alreadyImg" class="prod-img" style="margin-top:10px"><p id="alreadyName" style="font-weight:800;margin:8px 0 0"></p><p id="alreadyMeta" class="small"></p><p class="small">Don't collect again. Go to next product.</p>
+  </div>
 </div>
 
 <div class="card">
-  <h2 style="margin:0">2. Product Details</h2>
-  <label>Product Name</label>
-  <input id="productName" placeholder="Type product name, e.g. Derma Care">
-  <p class="small" id="dbMsg">If product is not in database, just type it — app will remember it next time.</p>
-  <label>Is this Packet or Bottle?</label>
-  <select id="packType"><option value="Packet">Packet</option><option value="Bottle">Bottle</option><option value="Tin">Tin / Can</option><option value="Box">Box</option></select>
-  <label>Size / Weight</label>
-  <input id="size" placeholder="e.g. 1L, 500g, 750ml">
-  <label>Expiry Date - Type It (No Camera)</label>
-  <input type="date" id="expiry">
-  <label>Price (Optional)</label>
-  <input id="price" placeholder="R 0.00">
-  <button class="btn btn-green" style="margin-top:14px" onclick="saveProduct()">✅ SAVE & CHECK FRESHNESS</button>
+  <h2 style="margin:0">2. Collect GOLD — Photo + Name + Size + Expiry</h2>
+  <p class="small">Only if it says GOLD above. If world knows it, skip.</p>
+  <input type="file" id="photoInput" accept="image/*" capture="environment" class="hidden" onchange="onPhoto(event)">
+  <button class="btn btn-blue" onclick="document.getElementById('photoInput').click()">📸 TAKE PRODUCT PHOTO</button>
+  <img id="previewImg" class="prod-img hidden" style="margin-top:12px"><p class="small" id="photoMsg">No photo yet.</p>
+  <label>Product Name — What does packet say?</label><input id="productName" placeholder="e.g. Derma Care Emulsifying Ointment">
+  <div class="row"><div><label>Size / Weight</label><input id="size" placeholder="e.g. 500g, 1L"></div><div><label>Type</label><select id="packType"><option>Packet</option><option>Bottle</option><option>Tin / Can</option><option>Box</option><option>Jar</option><option>Other</option></select></div></div>
+  <label>Expiry Date</label><input type="date" id="expiry" oninput="showExpiryStatus()"><p class="small" id="expiryStatus"></p>
+  <label>Shop / Town</label><input id="town" value="Hartswater, Northern Cape">
+  <button class="btn btn-green" style="margin-top:14px" onclick="saveGold()">✅ SAVE GOLD PRODUCT</button>
 </div>
 
-<div class="card hidden" id="resultCard">
-  <h2 id="resultTitle" style="margin:0">Result</h2>
-  <p id="resultText"></p>
-  <button class="btn btn-grey" onclick="resetForm()">Scan Next Product →</button>
-</div>
+<div class="card" id="resultCard" style="display:none"><h2 id="resultTitle" style="margin:0"></h2><p id="resultText"></p></div>
 
 <div class="card">
-  <h3 style="margin:0">My Saved Products (This Phone)</h3>
-  <p class="small">App remembers products you typed before.</p>
-  <div id="savedList"></div>
-  <button class="btn btn-grey" onclick="clearSaved()">Clear Saved</button>
+  <h3 style="margin:0">📋 My Done List — Exactly What Is Done</h3><p class="small">Not just a number. Every product with photo, size, expiry.</p>
+  <div class="row" style="margin:10px 0"><button class="tabBtn active" id="tabGold" onclick="setTab('gold')">🔴 GOLD Collected</button><button class="tabBtn" id="tabSkip" onclick="setTab('skip')">✅ Skipped</button><button class="tabBtn" id="tabAll" onclick="setTab('all')">All</button></div>
+  <label>Search Done List</label><input id="search" placeholder="Search name, barcode, size..." oninput="renderList()"><div id="list"></div>
+  <div class="row" style="margin-top:10px"><button class="btn btn-grey" onclick="exportDB()">📤 Backup My Database</button><button class="btn btn-grey" onclick="clearDB()">Clear</button></div>
+  <p class="small">Backup = copies to clipboard. Paste it in WhatsApp to yourself to keep safe. Private, not shared.</p>
 </div>
 
 <script>
-// SA local products - app knows these even if internet database doesn't
-const SA_DB = {
-  "6001212000018": {name:"Derma Care Emulsifying Ointment", size:"500g"},
-  "6001109000012": {name:"Koo Baked Beans", size:"410g"},
-  "6001234567890": {name:"Example - Derma Care", size:"1L"},
-};
-let html5Qr=null;
-function getSaved(){ try{return JSON.parse(localStorage.getItem('fc_v11_saved')||'{}')}catch(e){return{}} }
-function renderSaved(){
-  const s=getSaved(); const el=document.getElementById('savedList');
-  const keys=Object.keys(s);
-  if(!keys.length){ el.innerHTML='<p class="small">No saved products yet.</p>'; return; }
-  el.innerHTML=keys.map(k=>`<div style="padding:10px;border:1px solid #eee;border-radius:10px;margin:6px 0"><b>${s[k].name}</b><br><span class="small">${k} • ${s[k].size||''}</span> <button onclick="loadSaved('${k}')" style="float:right">Use</button></div>`).join('');
+let html5Qr=null, currentPhoto="", currentTab='gold', DAILY_GOAL=15, TOTAL_GOAL=600;
+function getDB(){ try{return JSON.parse(localStorage.getItem('fc_v12_private')||'{"gold":{},"skipped":{}}')}catch(e){return{gold:{},skipped:{}}} }
+function setDB(d){ localStorage.setItem('fc_v12_private', JSON.stringify(d)); updateStats(); renderList(); }
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function updateStats(){
+  const db=getDB(); const goldKeys=Object.keys(db.gold);
+  document.getElementById('countGold').textContent=goldKeys.length;
+  document.getElementById('countSkipped').textContent=Object.keys(db.skipped).length;
+  document.getElementById('countTotalScan').textContent=goldKeys.length+Object.keys(db.skipped).length;
+  const todayCount=goldKeys.filter(k=>db.gold[k].dateAdded===todayStr()).length;
+  document.getElementById('todayText').textContent=todayCount+' / '+DAILY_GOAL;
+  document.getElementById('todayBar').style.width=Math.min(100, todayCount/DAILY_GOAL*100)+'%';
+  let msg='';
+  if(todayCount===0) msg='Start Day 1 — Scan your first GOLD! You got this.';
+  else if(todayCount<DAILY_GOAL) msg=`Good! ${todayCount} done. You need ${DAILY_GOAL-todayCount} more to hit Unstoppable today. Keep going!`;
+  else if(todayCount===DAILY_GOAL) msg='🎉 YOU DID IT! 15/15 TODAY — UNSTOPPABLE DAY!';
+  else msg=`🔥🔥 OVER GOAL! ${todayCount} GOLD TODAY — LEGEND!`;
+  document.getElementById('todayMsg').textContent=msg;
+  document.getElementById('totalText').textContent=goldKeys.length+' / '+TOTAL_GOAL;
+  document.getElementById('totalBar').style.width=Math.min(100, goldKeys.length/TOTAL_GOAL*100)+'%';
+  let tmsg='600 = Unstoppable 👑 • 400 = Star ⭐ • 150 = Launch ✅';
+  if(goldKeys.length>=600) tmsg='👑 UNSTOPPABLE! 600 GOLD! No one can copy you now!';
+  else if(goldKeys.length>=400) tmsg='⭐ STAR LEVEL REACHED! You are already a star!';
+  else if(goldKeys.length>=150) tmsg='✅ LAUNCH READY! You have enough to start!';
+  else if(goldKeys.length>0) tmsg=`${goldKeys.length} GOLD done. ${150-goldKeys.length} more to Launch Ready. Keep going!`;
+  document.getElementById('totalMsg').textContent=tmsg;
 }
-function loadSaved(code){ const s=getSaved()[code]; if(!s) return; document.getElementById('barcode').value=code; document.getElementById('productName').value=s.name; document.getElementById('size').value=s.size||''; window.scrollTo({top:300,behavior:'smooth'}); }
-function clearSaved(){ localStorage.removeItem('fc_v11_saved'); renderSaved(); }
-
-async function getLocation(){
-  document.getElementById('locMsg').textContent='Finding your location... please tap Allow.';
-  if(!navigator.geolocation){ document.getElementById('locMsg').textContent='Your phone blocked location. Please type your town manually.'; return; }
-  navigator.geolocation.getCurrentPosition(async pos=>{
-    try{
-      const r=await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&localityLanguage=en`);
-      const j=await r.json();
-      const town=j.city||j.locality||j.principalSubdivision||'Hartswater';
-      const val=town+', '+(j.principalSubdivision||'Northern Cape');
-      document.getElementById('locationInput').value=val;
-      document.getElementById('locBadge').textContent='📍 Location: '+val;
-      document.getElementById('locMsg').textContent='Location found! ✅';
-    }catch(e){
-      document.getElementById('locMsg').textContent='Location found but town name not found. Please type town manually — app will still work.';
-    }
-  }, err=>{
-    document.getElementById('locMsg').textContent='Location not found. No problem — just type your town above, e.g. Hartswater, and continue.';
-  });
+async function checkWorld(){
+  const code=document.getElementById('barcode').value.trim(); if(!code) return;
+  const db=getDB();
+  if(db.gold[code]){ const p=db.gold[code]; document.getElementById('worldKnown').classList.add('hidden'); document.getElementById('worldUnknown').classList.add('hidden'); document.getElementById('alreadyCollected').classList.remove('hidden'); document.getElementById('alreadyName').textContent=p.name; document.getElementById('alreadyMeta').textContent=`${code} • ${p.size||''} • ${p.type||''} • Expiry: ${p.expiry||'—'} • ${expiryBadge(p.expiry)}`; if(p.photo) document.getElementById('alreadyImg').src=p.photo; document.getElementById('scanMsg').textContent='You already did this one. Skip, go next.'; return; }
+  if(db.skipped[code]){ document.getElementById('scanMsg').textContent='You already skipped this — world knows it. Go next.'; document.getElementById('worldKnown').classList.remove('hidden'); document.getElementById('worldName').textContent=db.skipped[code].name; return; }
+  document.getElementById('scanMsg').textContent='Checking world database...'; document.getElementById('worldKnown').classList.add('hidden'); document.getElementById('worldUnknown').classList.add('hidden'); document.getElementById('alreadyCollected').classList.add('hidden');
+  try{ const res=await fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`); const j=await res.json(); if(j.status===1 && j.product && (j.product.product_name||j.product.product_name_en)){ const name=j.product.product_name||j.product.product_name_en; document.getElementById('worldKnown').classList.remove('hidden'); document.getElementById('worldName').textContent=name; document.getElementById('worldMeta').textContent=`${code} • Brand: ${j.product.brands||''} • World Database`; document.getElementById('scanMsg').textContent='World knows this — SKIP, save your time.'; window._lastWorldName=name; } else { document.getElementById('worldUnknown').classList.remove('hidden'); document.getElementById('scanMsg').textContent='GOLD! World does NOT know this. Collect it now below.'; } }catch(e){ document.getElementById('worldUnknown').classList.remove('hidden'); document.getElementById('scanMsg').textContent='No internet to check world — treat as GOLD, collect it.'; }
 }
-document.getElementById('locationInput').addEventListener('input', e=>{
-  document.getElementById('locBadge').textContent='📍 Location: '+(e.target.value||'Hartswater');
-});
-
-async function onBarcodeChange(){
-  const code=document.getElementById('barcode').value.trim();
-  if(code.length<6) return;
-  const saved=getSaved()[code];
-  if(saved){ document.getElementById('productName').value=saved.name; document.getElementById('size').value=saved.size||''; document.getElementById('dbMsg').textContent='Found in your saved products ✅'; return; }
-  if(SA_DB[code]){ document.getElementById('productName').value=SA_DB[code].name; document.getElementById('size').value=SA_DB[code].size; document.getElementById('dbMsg').textContent='Found in SA products ✅'; return; }
-  // Try Open Food Facts but don't block if not found
-  try{
-    const r=await fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`);
-    const j=await r.json();
-    if(j.status===1 && j.product && j.product.product_name){
-      document.getElementById('productName').value=j.product.product_name;
-      document.getElementById('dbMsg').textContent='Found in world database ✅';
-    } else {
-      document.getElementById('dbMsg').textContent='Product not in database — just type product name above, app will remember it next time.';
-    }
-  }catch(e){ document.getElementById('dbMsg').textContent='No internet for database — just type product name above.'; }
-}
-
-async function startScan(){
-  document.getElementById('reader').classList.remove('hidden');
-  document.getElementById('stopBtn').classList.remove('hidden');
-  document.getElementById('scanMsg').textContent='Camera opening... Allow camera, then point at barcode.';
-  html5Qr=new Html5Qrcode("reader");
-  try{
-    await html5Qr.start({facingMode:"environment"}, {fps:10, qrbox:{width:260,height:140}}, (decoded)=>{
-      document.getElementById('barcode').value=decoded;
-      document.getElementById('scanMsg').textContent='Scanned: '+decoded+' ✅';
-      stopScan(); onBarcodeChange();
-    });
-  }catch(e){ document.getElementById('scanMsg').textContent='Camera blocked. Please tap Allow, or type barcode manually below.'; }
-}
+function markSkipped(){ const code=document.getElementById('barcode').value.trim(); const name=document.getElementById('worldName').textContent||window._lastWorldName||'Known in World'; const db=getDB(); db.skipped[code]={name,date:new Date().toISOString().slice(0,10)}; setDB(db); document.getElementById('barcode').value=''; document.getElementById('worldKnown').classList.add('hidden'); document.getElementById('scanMsg').textContent='Skipped recorded. Scan next.'; }
+function expiryBadge(exp){ if(!exp) return 'No expiry'; const diff=Math.ceil((new Date(exp)-new Date().setHours(0,0,0,0))/86400000); if(diff<0) return `EXPIRED ${Math.abs(diff)}d ago`; if(diff<=30) return `EXPIRING in ${diff}d`; return `FRESH in ${diff}d`; }
+function showExpiryStatus(){ const e=document.getElementById('expiry').value; document.getElementById('expiryStatus').textContent=e?expiryBadge(e):''; }
+function onPhoto(e){ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ currentPhoto=r.result; const img=document.getElementById('previewImg'); img.src=currentPhoto; img.classList.remove('hidden'); document.getElementById('photoMsg').textContent='Photo ready ✅'; }; r.readAsDataURL(f); }
+async function startScan(){ document.getElementById('reader').classList.remove('hidden'); document.getElementById('stopBtn').classList.remove('hidden'); html5Qr=new Html5Qrcode("reader"); try{ await html5Qr.start({facingMode:"environment"}, {fps:10, qrbox:{width:260,height:140}}, (decoded)=>{ document.getElementById('barcode').value=decoded; stopScan(); checkWorld(); }); }catch(e){ document.getElementById('scanMsg').textContent='Camera blocked. Allow camera or type barcode.'; } }
 async function stopScan(){ if(html5Qr){ try{await html5Qr.stop(); await html5Qr.clear();}catch(e){} } document.getElementById('reader').classList.add('hidden'); document.getElementById('stopBtn').classList.add('hidden'); }
-
-function saveProduct(){
-  const code=document.getElementById('barcode').value.trim();
-  const name=document.getElementById('productName').value.trim();
-  const size=document.getElementById('size').value.trim();
-  const expiry=document.getElementById('expiry').value;
-  const loc=document.getElementById('locationInput').value||'Hartswater';
-  if(!code){ alert('Please scan or type barcode first'); return; }
-  if(!name){ alert('Please type product name'); return; }
-  if(!expiry){ alert('Please type expiry date'); return; }
-  // Remember for next time
-  const s=getSaved(); s[code]={name,size}; localStorage.setItem('fc_v11_saved', JSON.stringify(s)); renderSaved();
-  const today=new Date(); today.setHours(0,0,0,0);
-  const exp=new Date(expiry); const diff=Math.ceil((exp-today)/86400000);
-  let title, text;
-  if(diff<0){ title='❌ EXPIRED'; text=`${name} expired ${Math.abs(diff)} days ago. Do NOT sell. Location: ${loc}`; }
-  else if(diff<=30){ title='⚠️ EXPIRING SOON'; text=`${name} expires in ${diff} days (${expiry}). Sell first! Location: ${loc}`; }
-  else { title='✅ FRESH'; text=`${name} is fresh. Expires in ${diff} days (${expiry}). Location: ${loc}`; }
-  document.getElementById('resultCard').classList.remove('hidden');
-  document.getElementById('resultTitle').textContent=title;
-  document.getElementById('resultText').textContent=text;
-  document.getElementById('resultCard').scrollIntoView({behavior:'smooth'});
-}
-function resetForm(){ document.getElementById('barcode').value=''; document.getElementById('productName').value=''; document.getElementById('size').value=''; document.getElementById('expiry').value=''; document.getElementById('resultCard').classList.add('hidden'); document.getElementById('dbMsg').textContent='If product is not in database, just type it — app will remember it next time.'; }
-renderSaved();
+function saveGold(){ const code=document.getElementById('barcode').value.trim(); const name=document.getElementById('productName').value.trim(); const size=document.getElementById('size').value.trim(); const type=document.getElementById('packType').value; const expiry=document.getElementById('expiry').value; const town=document.getElementById('town').value; if(!code){ alert('Scan barcode first'); return; } if(!name){ alert('Type product name from packet'); return; } const db=getDB(); db.gold[code]={name,size,type,expiry,town,photo:currentPhoto,dateAdded:todayStr()}; setDB(db); const card=document.getElementById('resultCard'); card.style.display='block'; document.getElementById('resultTitle').textContent='🎉 GOLD SAVED!'; document.getElementById('resultText').textContent=`${name} (${size||''}) — ${code} — ${expiryBadge(expiry)} — Saved. Check your TODAY bar above!`; document.getElementById('barcode').value=''; document.getElementById('productName').value=''; document.getElementById('size').value=''; document.getElementById('expiry').value=''; currentPhoto=''; document.getElementById('previewImg').classList.add('hidden'); document.getElementById('worldUnknown').classList.add('hidden'); window.scrollTo({top:0,behavior:'smooth'}); }
+function setTab(t){ currentTab=t; document.getElementById('tabGold').classList.toggle('active',t==='gold'); document.getElementById('tabSkip').classList.toggle('active',t==='skip'); document.getElementById('tabAll').classList.toggle('active',t==='all'); renderList(); }
+function renderList(){ const db=getDB(); const q=(document.getElementById('search').value||'').toLowerCase(); let items=[]; if(currentTab==='gold'||currentTab==='all') Object.keys(db.gold).forEach(k=>items.push({code:k,...db.gold[k],kind:'GOLD'})); if(currentTab==='skip'||currentTab==='all') Object.keys(db.skipped).forEach(k=>items.push({code:k,...db.skipped[k],kind:'SKIP'})); items=items.filter(p=>(p.name+' '+p.code+' '+(p.size||'')).toLowerCase().includes(q)); const el=document.getElementById('list'); if(!items.length){ el.innerHTML='<p class="small">No products in this list yet. Scan one above.</p>'; return; } el.innerHTML=items.slice(0,100).map(p=>{ if(p.kind==='SKIP') return `<div class="item"><div style="flex:1"><b>${p.name}</b><br><span class="small">${p.code} • ${p.date||''}</span><br><span class="badge badge-green">WORLD KNOWS — SKIPPED</span></div></div>`; const badge=!p.expiry?'':(expiryBadge(p.expiry).includes('EXPIRED')?'<span class="badge badge-red">'+expiryBadge(p.expiry)+'</span>':expiryBadge(p.expiry).includes('EXPIRING')?'<span class="badge badge-orange">'+expiryBadge(p.expiry)+'</span>':'<span class="badge badge-green">'+expiryBadge(p.expiry)+'</span>'); return `<div class="item"><img class="thumb" src="${p.photo||''}"><div style="flex:1"><b>${p.name}</b><br><span class="small">${p.code} • Size: <b>${p.size||'—'}</b> • ${p.type||''}</span><br><span class="small">Expiry: ${p.expiry||'—'} • ${p.town||''} • Added ${p.dateAdded||''}</span><br><span class="badge badge-gold">GOLD — NOT IN WORLD</span> ${badge}</div><button onclick="useProduct('${p.code}')" style="padding:8px 10px;border-radius:8px;border:1px solid #ddd;background:#fff">Use</button></div>`; }).join(''); }
+function useProduct(code){ document.getElementById('barcode').value=code; checkWorld(); window.scrollTo({top:200,behavior:'smooth'}); }
+function exportDB(){ const db=getDB(); navigator.clipboard?.writeText(JSON.stringify(db)); alert('Backup copied! Paste in WhatsApp to yourself to keep safe. GOLD: '+Object.keys(db.gold).length+' • Skipped: '+Object.keys(db.skipped).length); }
+function clearDB(){ if(confirm('Clear ALL private data on this phone?')){ localStorage.removeItem('fc_v12_private'); updateStats(); renderList(); } }
+updateStats(); renderList();
 </script>
 </body>
 </html>
