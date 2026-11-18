@@ -3,169 +3,177 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FRESH CHECK - HIPMTS V10</title>
+<title>FRESH CHECK V11 Simple</title>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
-*{box-sizing:border-box;font-family:Arial,sans-serif}
-body{margin:0;background:#d4edc0}
-.app{max-width:480px;margin:0 auto;background:#d4edc0;padding:14px 14px 30px}
-.location{background:#e8f5e0;border-radius:30px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;font-weight:bold}
-.location span{font-size:14px}
-.location button{border:none;background:#1a4d1a;color:#fff;border-radius:20px;padding:6px 10px;font-size:12px}
-.real{text-align:center;color:#1a4d1a;font-weight:bold;margin:12px 0;font-size:14px}
-h1{text-align:center;font-size:44px;margin:18px 0 0}
-.sub{text-align:center;color:#5a7a5a;font-size:20px;margin:4px 0 20px}
-.card{background:#eef7e6;border-radius:22px;padding:18px;margin-bottom:16px}
-.card h2{margin:0 0 14px;font-size:24px}
-.btn{width:100%;border:none;border-radius:30px;padding:15px;font-size:17px;font-weight:bold;cursor:pointer;margin-bottom:10px}
-.green{background:#6cc24a;color:#fff}
-.purple{background:#b79ced;color:#3a1a6b}
-.blue{background:#1a5cff;color:#fff}
-.input{width:100%;padding:14px;border:2px solid #ccc;border-radius:14px;font-size:16px;margin-bottom:12px;background:#fff}
-.result{border-radius:16px;padding:14px;margin-top:10px;display:none;font-weight:bold}
-.ok{background:#d4edda;color:#155724}
-.bad{background:#f8d7da;color:#721c24}
-.small{font-size:13px;color:#666;text-align:center;margin-top:8px}
-.badge{display:inline-block;background:#1a4d1a;color:#fff;padding:6px 14px;border-radius:20px;font-size:13px}
-#reader{width:100%;border-radius:16px;overflow:hidden;display:none;margin-bottom:12px;background:#000}
-.cam-note{text-align:center;font-size:13px;color:#333;display:none;margin-bottom:10px}
+*{box-sizing:border-box} body{font-family:system-ui,Arial,sans-serif;margin:0;background:#f6f7f9;color:#111}
+.header{background:#0f7a3d;color:#fff;padding:18px 16px;text-align:center}
+.header h1{margin:0;font-size:26px;letter-spacing:1px}
+.header p{margin:6px 0 0;opacity:.9;font-size:13px}
+.card{background:#fff;margin:12px;border-radius:14px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+label{font-weight:700;font-size:13px;display:block;margin:12px 0 6px}
+input,select{width:100%;padding:13px;border:1px solid #ddd;border-radius:10px;font-size:16px}
+.btn{width:100%;padding:15px;border:0;border-radius:12px;font-size:17px;font-weight:800;cursor:pointer}
+.btn-green{background:#0f7a3d;color:#fff}
+.btn-dark{background:#111;color:#fff}
+.btn-grey{background:#eef0f2;color:#111}
+.small{font-size:12px;color:#666;margin-top:6px}
+.badge{display:inline-block;background:#e6f4ec;color:#0f7a3d;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:700}
+#reader{width:100%;border-radius:12px;overflow:hidden;margin-top:10px}
+.result{border:2px solid #0f7a3d}
+.hidden{display:none}
+.row{display:flex;gap:10px}.row>*{flex:1}
 </style>
 </head>
 <body>
-<div class="app">
-<div class="location"><span id="locText">📍 Detecting township...</span><button onclick="askTownship()">Change</button></div>
-<div class="real">✔ REAL PRODUCT • REAL CHECK</div>
-<h1>FRESH CHECK</h1>
-<p class="sub">HIPMTS V10 - Scan Before You Buy</p>
-<div id="reader"></div>
-<div id="camNote" class="cam-note">Point camera at barcode — hold steady. <button onclick="stopScan()">Cancel</button></div>
+<div class="header"><h1>✅ FRESH CHECK</h1><p>V11 Simple • One Scan for Everyone • Hartswater</p></div>
+
 <div class="card">
-<h2>📦 Scan Packet</h2>
-<p style="margin:0 0 12px;color:#555">Scan the outer packet / box barcode</p>
-<button class="btn green" onclick="startScan('packet')">📷 SCAN PACKET BARCODE</button>
-<input class="input" id="packetCode" placeholder="Or type packet code e.g. 6009699410095">
-<input class="input" id="packetName" placeholder="Product name - type if not found e.g. Milk 2L">
-<button class="btn blue" onclick="checkPacket()">CHECK PACKET</button>
-<div id="packetResult" class="result"></div>
+  <span class="badge" id="locBadge">📍 Location: Hartswater, Northern Cape</span>
+  <label>Your Location</label>
+  <div class="row"><input id="locationInput" value="Hartswater, Northern Cape" placeholder="Type your town, e.g. Hartswater"><button class="btn btn-dark" style="width:auto;padding:13px 16px" onclick="getLocation()">Use My Location</button></div>
+  <p class="small" id="locMsg">You can type your town if automatic location fails. App will still work.</p>
 </div>
+
 <div class="card">
-<h2>🍼 Scan Bottle</h2>
-<p style="margin:0 0 12px;color:#555">Scan the single bottle inside</p>
-<button class="btn purple" onclick="startScan('bottle')">📷 SCAN BOTTLE BARCODE</button>
-<input class="input" id="bottleCode" placeholder="Or type bottle code e.g. 6001234567890">
-<input class="input" id="bottleName" placeholder="Product name - type if not found">
-<button class="btn blue" onclick="checkBottle()">CHECK BOTTLE</button>
-<div id="bottleResult" class="result"></div>
+  <h2 style="margin:0">1. Scan Product</h2>
+  <p class="small">One button scans Packet AND Bottle. No confusion.</p>
+  <button class="btn btn-green" id="scanBtn" onclick="startScan()">📷 SCAN BARCODE</button>
+  <div id="reader" class="hidden"></div>
+  <button class="btn btn-grey hidden" id="stopBtn" onclick="stopScan()">Stop Camera</button>
+  <label>Barcode (or type it manually)</label>
+  <input id="barcode" placeholder="e.g. 6001234567890" oninput="onBarcodeChange()">
+  <p class="small" id="scanMsg">Tap SCAN, point at barcode, hold still 2 seconds.</p>
 </div>
+
 <div class="card">
-<h2>✅ Verified Product</h2>
-<p id="verifiedText">No product verified yet. Scan a packet or bottle above.</p>
-<span class="badge" id="verifiedBadge" style="display:none">VERIFIED ✔</span>
+  <h2 style="margin:0">2. Product Details</h2>
+  <label>Product Name</label>
+  <input id="productName" placeholder="Type product name, e.g. Derma Care">
+  <p class="small" id="dbMsg">If product is not in database, just type it — app will remember it next time.</p>
+  <label>Is this Packet or Bottle?</label>
+  <select id="packType"><option value="Packet">Packet</option><option value="Bottle">Bottle</option><option value="Tin">Tin / Can</option><option value="Box">Box</option></select>
+  <label>Size / Weight</label>
+  <input id="size" placeholder="e.g. 1L, 500g, 750ml">
+  <label>Expiry Date - Type It (No Camera)</label>
+  <input type="date" id="expiry">
+  <label>Price (Optional)</label>
+  <input id="price" placeholder="R 0.00">
+  <button class="btn btn-green" style="margin-top:14px" onclick="saveProduct()">✅ SAVE & CHECK FRESHNESS</button>
 </div>
+
+<div class="card hidden" id="resultCard">
+  <h2 id="resultTitle" style="margin:0">Result</h2>
+  <p id="resultText"></p>
+  <button class="btn btn-grey" onclick="resetForm()">Scan Next Product →</button>
+</div>
+
 <div class="card">
-<h2>🥛 Check Freshness</h2>
-<label>Packet Expiry</label>
-<input class="input" type="date" id="expiry">
-<label>Storage</label>
-<select class="input" id="storage"><option>Fridge (2-4°C)</option><option>Room Temp</option><option>Freezer</option></select>
-<button class="btn green" onclick="checkFresh()">CHECK FRESHNESS</button>
-<div id="freshResult" class="result"></div>
+  <h3 style="margin:0">My Saved Products (This Phone)</h3>
+  <p class="small">App remembers products you typed before.</p>
+  <div id="savedList"></div>
+  <button class="btn btn-grey" onclick="clearSaved()">Clear Saved</button>
 </div>
-<p class="small">FRESH CHECK • HIPMTS • South Africa</p>
-</div>
+
 <script>
-let html5Qr = null;
-let scanTarget = 'packet';
-let isScanning = false;
+// SA local products - app knows these even if internet database doesn't
+const SA_DB = {
+  "6001212000018": {name:"Derma Care Emulsifying Ointment", size:"500g"},
+  "6001109000012": {name:"Koo Baked Beans", size:"410g"},
+  "6001234567890": {name:"Example - Derma Care", size:"1L"},
+};
+let html5Qr=null;
+function getSaved(){ try{return JSON.parse(localStorage.getItem('fc_v11_saved')||'{}')}catch(e){return{}} }
+function renderSaved(){
+  const s=getSaved(); const el=document.getElementById('savedList');
+  const keys=Object.keys(s);
+  if(!keys.length){ el.innerHTML='<p class="small">No saved products yet.</p>'; return; }
+  el.innerHTML=keys.map(k=>`<div style="padding:10px;border:1px solid #eee;border-radius:10px;margin:6px 0"><b>${s[k].name}</b><br><span class="small">${k} • ${s[k].size||''}</span> <button onclick="loadSaved('${k}')" style="float:right">Use</button></div>`).join('');
+}
+function loadSaved(code){ const s=getSaved()[code]; if(!s) return; document.getElementById('barcode').value=code; document.getElementById('productName').value=s.name; document.getElementById('size').value=s.size||''; window.scrollTo({top:300,behavior:'smooth'}); }
+function clearSaved(){ localStorage.removeItem('fc_v11_saved'); renderSaved(); }
 
-function askTownship(){
-  var t = prompt('Type your township / town e.g. Pampierstad, Soweto, Bloemfontein:');
-  if(t){ document.getElementById('locText').innerText = '📍 ' + t.trim() + ' ▼'; }
+async function getLocation(){
+  document.getElementById('locMsg').textContent='Finding your location... please tap Allow.';
+  if(!navigator.geolocation){ document.getElementById('locMsg').textContent='Your phone blocked location. Please type your town manually.'; return; }
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    try{
+      const r=await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&localityLanguage=en`);
+      const j=await r.json();
+      const town=j.city||j.locality||j.principalSubdivision||'Hartswater';
+      const val=town+', '+(j.principalSubdivision||'Northern Cape');
+      document.getElementById('locationInput').value=val;
+      document.getElementById('locBadge').textContent='📍 Location: '+val;
+      document.getElementById('locMsg').textContent='Location found! ✅';
+    }catch(e){
+      document.getElementById('locMsg').textContent='Location found but town name not found. Please type town manually — app will still work.';
+    }
+  }, err=>{
+    document.getElementById('locMsg').textContent='Location not found. No problem — just type your town above, e.g. Hartswater, and continue.';
+  });
 }
-function detectLocation(){
-  if(!navigator.geolocation){ document.getElementById('locText').innerText = '📍 Location not found - tap Change'; return; }
-  navigator.geolocation.getCurrentPosition(function(pos){
-    fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat='+pos.coords.latitude+'&lon='+pos.coords.longitude)
-    .then(r=>r.json()).then(data=>{
-      var a = data.address || {};
-      var township = a.suburb || a.neighbourhood || a.township || a.town || a.village || a.hamlet || a.city_district || '';
-      var muni = a.municipality || a.city || a.county || a.state_district || '';
-      if(township && muni && township.toLowerCase() !== muni.toLowerCase()){
-        document.getElementById('locText').innerText = '📍 ' + township + ', ' + muni + ' ▼';
-      } else if(township){ document.getElementById('locText').innerText = '📍 ' + township + ' ▼'; }
-      else if(muni){ document.getElementById('locText').innerText = '📍 ' + muni + ' ▼'; }
-      else { document.getElementById('locText').innerText = '📍 Location not found - tap Change'; }
-    }).catch(()=>{ document.getElementById('locText').innerText = '📍 Location not found - tap Change'; });
-  }, function(){ document.getElementById('locText').innerText = '📍 Location not found - tap Change'; });
-}
-detectLocation();
+document.getElementById('locationInput').addEventListener('input', e=>{
+  document.getElementById('locBadge').textContent='📍 Location: '+(e.target.value||'Hartswater');
+});
 
-// FIXED SCANNER - fully stops before reopening, works for packet AND bottle, multiple times
-async function stopScan(){
-  document.getElementById('reader').style.display='none';
-  document.getElementById('camNote').style.display='none';
-  if(html5Qr && isScanning){
-    try{ await html5Qr.stop(); }catch(e){}
-    try{ await html5Qr.clear(); }catch(e){}
-  }
-  html5Qr = null;
-  isScanning = false;
-}
-async function startScan(target){
-  // Always fully stop previous scan first - this was the bug
-  await stopScan();
-  scanTarget = target;
-  document.getElementById('reader').style.display='block';
-  document.getElementById('camNote').style.display='block';
-  html5Qr = new Html5Qrcode("reader");
-  isScanning = true;
+async function onBarcodeChange(){
+  const code=document.getElementById('barcode').value.trim();
+  if(code.length<6) return;
+  const saved=getSaved()[code];
+  if(saved){ document.getElementById('productName').value=saved.name; document.getElementById('size').value=saved.size||''; document.getElementById('dbMsg').textContent='Found in your saved products ✅'; return; }
+  if(SA_DB[code]){ document.getElementById('productName').value=SA_DB[code].name; document.getElementById('size').value=SA_DB[code].size; document.getElementById('dbMsg').textContent='Found in SA products ✅'; return; }
+  // Try Open Food Facts but don't block if not found
   try{
-    await html5Qr.start({facingMode:"environment"}, {fps:10, qrbox:{width:250, height:150}},
-      function(decoded){
-        var t = scanTarget;
-        if(t==='packet'){ document.getElementById('packetCode').value = decoded; }
-        else { document.getElementById('bottleCode').value = decoded; }
-        stopScan().then(()=>{
-          if(t==='packet'){ checkPacket(); } else { checkBottle(); }
-        });
-      },
-      function(err){}
-    );
-  }catch(e){
-    isScanning = false;
-    alert('Camera blocked. Please allow camera in browser, or type barcode instead.');
-    await stopScan();
-  }
+    const r=await fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`);
+    const j=await r.json();
+    if(j.status===1 && j.product && j.product.product_name){
+      document.getElementById('productName').value=j.product.product_name;
+      document.getElementById('dbMsg').textContent='Found in world database ✅';
+    } else {
+      document.getElementById('dbMsg').textContent='Product not in database — just type product name above, app will remember it next time.';
+    }
+  }catch(e){ document.getElementById('dbMsg').textContent='No internet for database — just type product name above.'; }
 }
-function show(id,msg,ok){var el=document.getElementById(id);el.style.display='block';el.className='result '+(ok?'ok':'bad');el.innerHTML=msg;}
-function checkPacket(){
-  var v=document.getElementById('packetCode').value.trim();
-  var n=document.getElementById('packetName').value.trim();
-  if(!v){show('packetResult','Please scan or type a packet code.',false);return;}
-  var displayName = n ? n : '(Name not in database - type product name above)';
-  show('packetResult','✔ PACKET SCANNED<br>Barcode: '+v+'<br>Product: '+displayName+'<br>Status: Scanned - now check freshness below',true);
-  document.getElementById('verifiedText').innerText='Packet: '+v+' - '+displayName;
-  document.getElementById('verifiedBadge').style.display='inline-block';
+
+async function startScan(){
+  document.getElementById('reader').classList.remove('hidden');
+  document.getElementById('stopBtn').classList.remove('hidden');
+  document.getElementById('scanMsg').textContent='Camera opening... Allow camera, then point at barcode.';
+  html5Qr=new Html5Qrcode("reader");
+  try{
+    await html5Qr.start({facingMode:"environment"}, {fps:10, qrbox:{width:260,height:140}}, (decoded)=>{
+      document.getElementById('barcode').value=decoded;
+      document.getElementById('scanMsg').textContent='Scanned: '+decoded+' ✅';
+      stopScan(); onBarcodeChange();
+    });
+  }catch(e){ document.getElementById('scanMsg').textContent='Camera blocked. Please tap Allow, or type barcode manually below.'; }
 }
-function checkBottle(){
-  var v=document.getElementById('bottleCode').value.trim();
-  var n=document.getElementById('bottleName').value.trim();
-  if(!v){show('bottleResult','Please scan or type a bottle code.',false);return;}
-  var displayName = n ? n : '(Name not in database - type product name above)';
-  show('bottleResult','✔ BOTTLE SCANNED<br>Barcode: '+v+'<br>Product: '+displayName+'<br>Status: Scanned - now check freshness below',true);
-  document.getElementById('verifiedText').innerText='Bottle: '+v+' - '+displayName;
-  document.getElementById('verifiedBadge').style.display='inline-block';
+async function stopScan(){ if(html5Qr){ try{await html5Qr.stop(); await html5Qr.clear();}catch(e){} } document.getElementById('reader').classList.add('hidden'); document.getElementById('stopBtn').classList.add('hidden'); }
+
+function saveProduct(){
+  const code=document.getElementById('barcode').value.trim();
+  const name=document.getElementById('productName').value.trim();
+  const size=document.getElementById('size').value.trim();
+  const expiry=document.getElementById('expiry').value;
+  const loc=document.getElementById('locationInput').value||'Hartswater';
+  if(!code){ alert('Please scan or type barcode first'); return; }
+  if(!name){ alert('Please type product name'); return; }
+  if(!expiry){ alert('Please type expiry date'); return; }
+  // Remember for next time
+  const s=getSaved(); s[code]={name,size}; localStorage.setItem('fc_v11_saved', JSON.stringify(s)); renderSaved();
+  const today=new Date(); today.setHours(0,0,0,0);
+  const exp=new Date(expiry); const diff=Math.ceil((exp-today)/86400000);
+  let title, text;
+  if(diff<0){ title='❌ EXPIRED'; text=`${name} expired ${Math.abs(diff)} days ago. Do NOT sell. Location: ${loc}`; }
+  else if(diff<=30){ title='⚠️ EXPIRING SOON'; text=`${name} expires in ${diff} days (${expiry}). Sell first! Location: ${loc}`; }
+  else { title='✅ FRESH'; text=`${name} is fresh. Expires in ${diff} days (${expiry}). Location: ${loc}`; }
+  document.getElementById('resultCard').classList.remove('hidden');
+  document.getElementById('resultTitle').textContent=title;
+  document.getElementById('resultText').textContent=text;
+  document.getElementById('resultCard').scrollIntoView({behavior:'smooth'});
 }
-function checkFresh(){
-  var d=document.getElementById('expiry').value;
-  if(!d){show('freshResult','Please select Expiry Date.',false);return;}
-  var exp=new Date(d); var today=new Date(); today.setHours(0,0,0,0);
-  var diff=Math.ceil((exp-today)/(1000*60*60*24));
-  if(diff<0){show('freshResult','✘ EXPIRED '+Math.abs(diff)+' days ago<br>DO NOT USE.',false);}
-  else if(diff===0){show('freshResult','⚠ EXPIRES TODAY - Use today or do not buy.<br>Keep in Fridge.',true);}
-  else if(diff<=3){show('freshResult','⚠ USE SOON - Expires in '+diff+' day(s)<br>Keep in Fridge.',true);}
-  else{show('freshResult','✔ FRESH - '+diff+' days left<br>Expiry: '+d+'<br>Storage: '+document.getElementById('storage').value,true);}
-}
+function resetForm(){ document.getElementById('barcode').value=''; document.getElementById('productName').value=''; document.getElementById('size').value=''; document.getElementById('expiry').value=''; document.getElementById('resultCard').classList.add('hidden'); document.getElementById('dbMsg').textContent='If product is not in database, just type it — app will remember it next time.'; }
+renderSaved();
 </script>
 </body>
 </html>
